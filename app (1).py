@@ -138,15 +138,40 @@ if data.empty:
     st.warning("Selected column mein usable feedback nahi mila.")
     st.stop()
 
+
 with st.spinner("Feedback analyze ho raha hai..."):
+
+    # Pehle se mojood analysis columns remove karein
+    analysis_columns = [
+        "positive_score",
+        "negative_score",
+        "neutral_score",
+        "compound_score",
+        "predicted_sentiment",
+        "cleaned_feedback",
+        "topic"
+    ]
+
+    data = data.drop(
+        columns=analysis_columns,
+        errors="ignore"
+    )
+
+    # Sentiment analysis dobara karein
     sentiment_results = data[text_column].apply(analyze_sentiment)
+
     data = pd.concat(
-        [data.reset_index(drop=True),
-         sentiment_results.reset_index(drop=True)],
+        [
+            data.reset_index(drop=True),
+            sentiment_results.reset_index(drop=True)
+        ],
         axis=1
     )
+
+    # Topic aur cleaned text create karein
     data["cleaned_feedback"] = data[text_column].apply(clean_text)
     data["topic"] = data[text_column].apply(classify_topic)
+
 
 st.success(f"Analysis complete! Total feedback: {len(data)}")
 
